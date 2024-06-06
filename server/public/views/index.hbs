@@ -1,0 +1,65 @@
+<nav class="navbar navbar-inverse navbar-embossed navbar-expand-lg" role="navigation">
+  <a class="navbar-brand" href="#">Vidéo-Surveillance</a>
+  <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse-01"></button>
+  <div class="collapse navbar-collapse" id="navbar-collapse-01">
+    <ul class="nav navbar-nav mr-auto">
+      <li><a class="active" href="/">Vue Générale</a></li>
+      <li>
+        <div class="btn-group" id="cam-menu">
+          <button class="btn btn-inverse dropdown-toggle" type="button" data-toggle="dropdown">
+            Choix de la caméra
+          </button>
+          <ul class="dropdown-menu dropdown-menu-inverse" role="menu">
+            {{#each cameraIndex}}
+              <li><a href="cam/{{{this}}}"> Caméra {{{this}}}<a></li>
+            {{/each}}
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="main">
+  <h2>Vidéo Surveillance Maison</h2>
+  
+  <button class="btn btn-inverse btn-wide" id="loadstr" onclick="loadStreams()">Connecter les caméras</button>
+  
+  <div id="streams">
+    {{#each cameraPorts}}
+      <img id="stream{{{this}}}" onload="loadStream({{{this}}})" alt="Caméra déconnectée" style="width: 100%; max-width: 640px;"/>
+    {{/each}}
+  </div>
+</div>
+<script>
+
+  let ws = {};
+
+  function loadStreams() {
+    {{#each cameraPorts}}
+      loadStream({{{this}}});
+    {{/each}}
+  }
+
+  function loadStream(port) {
+    console.log("loading stream " + port);
+    if (ws[port]) {
+      ws[port].close();
+    }
+    ws[port] = new WebSocket('ws://' + window.location.hostname + ':' + port + '/?password={{{hashedPassword}}}&username={{{hashedUsername}}}');
+
+    
+    ws[port].binaryType = 'arraybuffer';
+    ws[port].onmessage = (event) => {
+      const blob = new Blob([event.data], { type: 'image/jpeg' });
+      const url = URL.createObjectURL(blob);
+      const img = document.getElementById('stream' + port);
+      img.src = url;
+      
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+      };
+    };
+  }
+</script>
+
