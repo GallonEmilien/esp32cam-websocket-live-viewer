@@ -77,4 +77,5 @@ PASSWORD=... (doit correspondre à celui de l'ESP)
 + Permettre l'enregistrement (configurer pour X Go puis au fur et à mesure supprimer quand l'espace est dépassé, sur un event déclencher X minutes)
 + Intégrer les modules de détection de mouvement (déjà tenté en exploitant le dual-core de l'ESP-Cam mais beaucoup de soucis, à voir pour faire ça avec un module en parallèle (ESP8266?))
 + Factorisation du code
++ Améliorer le visuel
 
