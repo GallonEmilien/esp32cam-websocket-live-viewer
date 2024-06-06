@@ -17,7 +17,7 @@ Chaque requête avant son envoie est hashé via l'algorithme MD5 ce qui n'est pa
 
 ### ESP-Cam
 
-+ Configurer le SSID & Mot de passe internet & Username & Password dans le credentials.h
++ Configurer le SSID & Mot de passe internet & Username & Password dans un fichier credentials.h que vous créerez dans le dossier esp.
 
 Attention ! Le Username & Password doivent être les mêmes que ceux choisis pour le serveur
 
