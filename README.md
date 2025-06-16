@@ -1,3 +1,12 @@
+TODO : 
+
+Changer de framework front
+Image docker + reverse proxy
+Sécuriser les routes
+Authentification JWT
+Streaming gRPC
+Optimisation du flux pour + d'images
+
 
 # Websocket ESP Camera
 
