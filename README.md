@@ -9,6 +9,7 @@
 - Multiple Caméra
 - Plusieurs compte utilisateurs qui peuvent posséder ou non des accès à des caméras
 - Déploiement docker
+- Détection de mouvement & alertes utilisateur
 
 ## Introduction
 
