@@ -1,0 +1,17 @@
+<div class="login-container" *transloco="let t">
+  <form (ngSubmit)="onLogin()">
+    <mat-form-field appearance="fill" class="full-width" [class.error]="loginError() && !username()">
+      <mat-label>{{ t('login.fields.username') }}</mat-label>
+      <input matInput [(ngModel)]="username" name="username" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width" [class.error]="loginError() && !password()">
+      <mat-label>{{ t('login.fields.password') }}</mat-label>
+      <input matInput [(ngModel)]="password" name="password" type="password" required />
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="!username() || !password()">
+      {{ t('login.buttons.submit') }}
+    </button>
+  </form>
+</div>

@@ -1,0 +1,15 @@
+<div class="camera-container">
+  <h2>Live Camera</h2>
+  <canvas #canvas></canvas>
+  @if (!latestFrame()) {
+    <mat-spinner></mat-spinner>
+  }
+</div>
+<div class="camera-container" *transloco="let t">
+  <h2>{{ t('camera.title') }}</h2>
+  <canvas #canvas></canvas>
+  @if (!latestFrame()) {
+    <mat-spinner></mat-spinner>
+    <p>{{ t('camera.loading') }}</p>
+  }
+</div>

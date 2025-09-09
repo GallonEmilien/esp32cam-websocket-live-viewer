@@ -1,0 +1,53 @@
+import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { CameraService } from '../../core/services/camera.service';
+import { AuthService } from '../../core/auth/auth.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {TranslocoDirective} from '@ngneat/transloco';
+
+@Component({
+  selector: 'app-camera',
+  standalone: true,
+  imports: [CommonModule, MatProgressSpinnerModule, TranslocoDirective],
+  templateUrl: './camera.component.html',
+  styleUrls: ['./camera.component.scss']
+})
+export class CameraComponent implements OnInit, AfterViewInit, OnDestroy {
+  private cameraService = inject(CameraService);
+  private authService = inject(AuthService);
+
+  protected latestFrame = this.cameraService.latestFrame;
+
+  @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  private ctx!: CanvasRenderingContext2D;
+
+  private animationId!: number;
+
+  ngOnInit() {
+    const token = this.authService.getToken();
+    if (token) {
+      this.cameraService.connect(token);
+    }
+  }
+
+  ngAfterViewInit() {
+    this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
+    this.drawLoop();
+  }
+
+  private drawLoop() {
+    const frame = this.latestFrame();
+    if (frame && this.ctx) {
+      const canvas = this.canvasRef.nativeElement;
+      if (canvas.width !== frame.width) canvas.width = frame.width;
+      if (canvas.height !== frame.height) canvas.height = frame.height;
+      this.ctx.drawImage(frame, 0, 0, frame.width, frame.height);
+    }
+    this.animationId = requestAnimationFrame(() => this.drawLoop());
+  }
+
+  ngOnDestroy() {
+    cancelAnimationFrame(this.animationId);
+    this.cameraService.disconnect();
+  }
+}

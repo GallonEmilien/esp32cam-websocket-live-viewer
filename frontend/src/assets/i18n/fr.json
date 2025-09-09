@@ -1,0 +1,18 @@
+{
+  "login": {
+    "fields": {
+      "username": "Nom d'utilisateur",
+      "password": "Mot de passe"
+    },
+    "buttons": {
+      "submit": "Connexion"
+    },
+    "form": {
+      "error": "Veuillez remplir tous les champs requis"
+    }
+  },
+  "camera": {
+    "title": "Caméra en direct",
+    "loading": "Chargement..."
+  }
+}

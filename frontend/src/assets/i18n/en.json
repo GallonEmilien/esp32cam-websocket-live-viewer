@@ -1,0 +1,18 @@
+{
+  "login": {
+    "fields": {
+      "username": "Username",
+      "password": "Password"
+    },
+    "buttons": {
+      "submit": "Login"
+    },
+    "form": {
+      "error": "Please fill in all required fields"
+    }
+  },
+  "camera": {
+    "title": "Live Camera",
+    "loading": "Loading..."
+  }
+}
