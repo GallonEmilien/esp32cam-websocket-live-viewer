@@ -5,12 +5,10 @@
 
 ## TODO : 
 
-- Changer de framework front
-- Image docker + reverse proxy
-- Sécuriser les routes
-- Authentification JWT
 - Streaming gRPC
-- Optimisation du flux pour + d'images
+- Multiple Caméra
+- Plusieurs compte utilisateurs qui peuvent posséder ou non des accès à des caméras
+- Déploiement docker
 
 ## Introduction
 
@@ -28,65 +26,37 @@ Chaque requête avant son envoie est hashé via l'algorithme MD5 ce qui n'est pa
 
 ### ESP-Cam
 
-+ Configurer le SSID & Mot de passe internet & Username & Password dans un fichier credentials.h que vous créerez dans le dossier esp.
-
-Attention ! Le Username & Password doivent être les mêmes que ceux choisis pour le serveur
-
++ Configurer le SSID & Mot de passe internet & le token utilisé par le serveur dans le esp/credentials.h
 ```
 #define SSID ""
 #define WIFI_PASSWORD ""
-#define USERNAME ""
-#define PASSWORD ""
+#define ESP_SECRET ""
 ```
 
 + Configurer l'IP du serveur local. (Pensez à modifier pour le mettre en IP fixe via la paramètres DHCP)
 
 ```
-websocket_server_host = ...
+wsHost = ...
 ```
 
-+ Configurer le port de la caméra puis l'incrémenter de 1 pour chaque nouvelle caméra à ajouter.
++ Configurer le port du serveur
 
 ```
-const uint16_t websocket_server_port = 8880;
-```
-puis
-```
-const uint16_t websocket_server_port = 8881;
+const uint16_t wsPort = 8080;
 ```
 
 etc...
 
 ### Serveur 
 
+Définir les variables d'environnements pour le serveur : 
 
-+ lancer la commande `npm install`
+WS_CAM_ESP_SECRET=..;
+WS_CAM_JWT_SECRET=..;
+WS_CAM_PASSWORD=..;
+WS_CAM_USER=..;
 
-+ Définir dans server-config.json le nombre de caméras et le port auquel le décompte commencera.
-Par exemple : 
-```
-  "camera-number": 4,
-  "camera-start-port": 8880
-```
-seront les caméras de 8880 à 8883.
 
-+ Créer un .env de la sorte : 
++ lancer la run config bootRun 
 
-```
-API_KEY=... (doit être une clé forte qui sera utilisée ultérieurement)
-USERNAME=... (doit correspondre à celui de l'ESP)
-PASSWORD=... (doit correspondre à celui de l'ESP)
-```
-
-+ Lancer le serveur avec `node --env-file=.env server.js`
-
-## Pistes d'améliorations
-
-+ Empêcher les attaques MITD sur l'authentification (améliorer le système médiocre pour le moment)
-+ SSL
-+ Limiter le nombre de port à ouvrir ?
-+ Permettre l'enregistrement (configurer pour X Go puis au fur et à mesure supprimer quand l'espace est dépassé, sur un event déclencher X minutes)
-+ Intégrer les modules de détection de mouvement (déjà tenté en exploitant le dual-core de l'ESP-Cam mais beaucoup de soucis, à voir pour faire ça avec un module en parallèle (ESP8266?))
-+ Factorisation du code
-+ Améliorer le visuel
 
