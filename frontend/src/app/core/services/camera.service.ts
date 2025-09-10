@@ -1,20 +1,28 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {WebSocketService} from './websocket.service';
 
 @Injectable({ providedIn: 'root' })
 export class CameraService {
-  latestFrame = signal<ImageBitmap | undefined>(undefined);
-
   private wsService = inject(WebSocketService);
 
-  connect(jwt: string) {
-    const url = `ws://localhost:8080/api/ws/camera?jwt=${jwt}&apiKey=CLIENT`;
-    this.wsService.connect(url, async (data) => {
+  frames = new Map<string, WritableSignal<ImageBitmap | undefined>>();
+
+  connect(jwt: string, espId: string) {
+    if (!this.frames.has(espId)) {
+      this.frames.set(espId, signal<ImageBitmap | undefined>(undefined));
+    }
+
+    const url = `ws://localhost:8080/api/ws/camera?jwt=${jwt}&mode=CLIENT&espId=${espId}`;
+    this.wsService.connect(url, espId, async (data) => {
       const blob = new Blob([data], { type: 'image/jpeg' });
-      try { this.latestFrame.set(await createImageBitmap(blob)); }
-      catch (err) { console.error(err); }
+      try {
+        const img = await createImageBitmap(blob);
+        this.frames.get(espId)?.set(img);
+      } catch (err) {
+        console.error(err);
+      }
     });
   }
 
-  disconnect() { this.wsService.disconnect(); }
+  disconnect(espId: string) { this.wsService.disconnect(espId); }
 }

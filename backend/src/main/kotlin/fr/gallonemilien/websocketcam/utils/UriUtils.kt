@@ -7,7 +7,7 @@ object UriUtils {
         val query = uri?.query ?: return emptyMap()
         return query.split("&")
             .mapNotNull {
-                val parts = it.split("=", limit = 2)
+                val parts = it.split("=")
                 if (parts.isNotEmpty()) {
                     parts[0] to (parts.getOrNull(1) ?: "")
                 } else {

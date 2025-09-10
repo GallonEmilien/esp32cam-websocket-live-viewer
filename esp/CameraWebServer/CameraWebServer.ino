@@ -23,6 +23,7 @@ unsigned long lastPingTime = 0;
 const unsigned long PING_INTERVAL = 30000;
 
 const char* apiKey = "ESP";
+const char* espId = "1";
 
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 0;
@@ -94,7 +95,7 @@ String generateJWT() {
 
 void setupWebSocket() {
   String token = generateJWT();
-  String wsUrl = "ws://" + String(wsHost) + ":" + String(wsPort) + "/api/ws/camera?jwt=" + token + "&apiKey=ESP";
+  String wsUrl = "ws://" + String(wsHost) + ":" + String(wsPort) + "/api/ws/camera?jwt=" + token + "&espId=" + espId + "&mode=ESP";
   
   Serial.println("Connexion WebSocket à: " + wsUrl);
 

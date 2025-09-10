@@ -1,14 +1,14 @@
 import { Routes } from '@angular/router';
-import {LoginComponent} from './feat/login/login.component';
-import {CameraComponent} from './feat/camera/camera.component';
+import {LoginPage} from './feat/login/login.page';
 import {authGuard} from './core/auth/auth.guard';
+import {HomePage} from './feat/home/home.page';
 
 
 export const routes: Routes = [
-  { path: 'auth/login', component: LoginComponent },
+  { path: 'auth/login', component: LoginPage },
   {
-    path: 'camera',
-    component: CameraComponent,
+    path: 'home',
+    component: HomePage,
     canActivate: [authGuard]
   },
   { path: '', redirectTo: 'auth/login', pathMatch: 'full' }

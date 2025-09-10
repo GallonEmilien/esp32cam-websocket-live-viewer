@@ -2,18 +2,36 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
-  private ws?: WebSocket;
+  private sockets = new Map<string, WebSocket>();
 
-  connect(url: string, onMessage: (data: ArrayBuffer) => void) {
-    if (this.ws) this.ws.close();
+  connect(url: string, espId: string, onMessage: (data: ArrayBuffer) => void) {
+    const existing = this.sockets.get(espId);
 
-    this.ws = new WebSocket(url);
-    this.ws.binaryType = 'arraybuffer';
+    if (existing && existing.readyState === WebSocket.OPEN) {
+      return;
+    }
 
-    this.ws.onmessage = (e) => onMessage(e.data);
-    this.ws.onclose = () => setTimeout(() => this.connect(url, onMessage), 1000);
-    this.ws.onerror = () => this.ws?.close();
+    const ws = new WebSocket(url);
+    ws.binaryType = 'arraybuffer';
+    ws.onmessage = (e) => onMessage(e.data);
+    ws.onclose = (e) => {
+      this.sockets.delete(espId);
+      if (!e.wasClean) {
+        setTimeout(() => this.connect(url, espId, onMessage), 1000);
+      }
+    };
+    ws.onerror = () => {
+      ws.close();
+    };
+
+    this.sockets.set(espId, ws);
   }
 
-  disconnect() { this.ws?.close(); }
+  disconnect(espId: string) {
+    const ws = this.sockets.get(espId);
+    if (ws) {
+      this.sockets.delete(espId);
+      ws.close(1000, 'Client disconnect');
+    }
+  }
 }

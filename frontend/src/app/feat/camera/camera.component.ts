@@ -1,13 +1,12 @@
 import {
   Component,
   inject,
-  OnInit,
   OnDestroy,
   AfterViewInit,
   ViewChild,
   ElementRef,
   computed,
-  signal
+  signal, input, effect
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CameraService } from '../../core/services/camera.service';
@@ -23,11 +22,17 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/mat
   templateUrl: './camera.component.html',
   styleUrls: ['./camera.component.scss']
 })
-export class CameraComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CameraComponent implements AfterViewInit, OnDestroy {
   private cameraService = inject(CameraService);
   private authService = inject(AuthService);
 
-  readonly latestFrame = this.cameraService.latestFrame;
+  cameraId = input<string | undefined>(undefined);
+
+  latestFrame = computed(() => {
+    const cameraId = this.cameraId();
+    if (!cameraId) return undefined;
+    return this.cameraService.frames.get(cameraId)?.();
+  })
 
   isActive = signal(false);
 
@@ -43,11 +48,15 @@ export class CameraComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private animationId!: number;
 
-  ngOnInit() {
-    const token = this.authService.getToken();
-    if (token) {
-      this.cameraService.connect(token);
-    }
+  constructor() {
+    effect(() => {
+      const token = this.authService.getToken();
+      const cameraId = this.cameraId();
+      if (token && cameraId) {
+        console.log("NOUVELLE")
+        this.cameraService.connect(token, cameraId);
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -70,6 +79,6 @@ export class CameraComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     cancelAnimationFrame(this.animationId);
-    this.cameraService.disconnect();
+    this.cameraService.disconnect('0');
   }
 }

@@ -7,38 +7,41 @@ import org.springframework.web.socket.WebSocketSession
 @Service
 class CameraService(private val authService: AuthService) {
 
-    private val clients = mutableSetOf<WebSocketSession>()
-    var espSession: WebSocketSession? = null
+    private val clientSubscriptions = mutableMapOf<WebSocketSession, String>()
+    var espSessions = mutableMapOf<String, WebSocketSession>()
 
-    fun forwardBinaryFromESP(message: BinaryMessage) {
+    fun forwardBinaryFromESP(espId: String, message: BinaryMessage) {
         val data = message.payload
         val copy = data.duplicate()
-        clients.forEach { client ->
-            if (client.isOpen) {
-                try {
-                    client.sendMessage(BinaryMessage(copy))
-                } catch (ex: Exception) {
-                    println("Error when sending to client ${client.id}: ${ex.message}")
+        clientSubscriptions.filterValues { it == espId }
+            .keys
+            .forEach { client ->
+                if (client.isOpen) {
+                    try {
+                        client.sendMessage(BinaryMessage(copy))
+                    } catch (ex: Exception) {
+                        println("Error sending to client ${client.id}: ${ex.message}")
+                    }
                 }
             }
-        }
     }
 
     fun disconnect(session: WebSocketSession) {
-        if (session == espSession) espSession = null else clients.remove(session)
+        espSessions.entries.removeIf { it.value == session }
+        clientSubscriptions.remove(session)
     }
 
-    fun connect(session: WebSocketSession, jwtToken: String?, apiKey: String?): Boolean {
-        if (jwtToken.isNullOrEmpty() || apiKey.isNullOrEmpty()) return false
-        return when (apiKey) {
-            "ESP" -> connectESP(session, jwtToken)
-            else -> connectClient(session, jwtToken)
+    fun connect(session: WebSocketSession, jwtToken: String?, mode: String?, espId: String?): Boolean {
+        if (jwtToken.isNullOrEmpty() || mode.isNullOrEmpty() || espId.isNullOrEmpty()) return false
+        return when(mode) {
+            "ESP" -> connectESP(session, jwtToken, espId)
+            else -> connectClient(session, jwtToken, espId)
         }
     }
 
-    private fun connectESP(session: WebSocketSession, token: String): Boolean =
-        authService.verifyESPToken(token).also { if (it) espSession = session }
+    private fun connectESP(session: WebSocketSession, token: String, espId: String): Boolean =
+        authService.verifyESPToken(token).also { if (it) espSessions[espId] = session }
 
-    private fun connectClient(session: WebSocketSession, token: String): Boolean =
-        authService.verifyClientToken(token).also { if (it) clients.add(session) }
+    private fun connectClient(session: WebSocketSession, token: String, espId: String): Boolean =
+        authService.verifyClientToken(token).also { if (it) clientSubscriptions[session] = espId }
 }

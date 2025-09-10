@@ -17,10 +17,11 @@ class CameraHandler(private val cameraService: CameraService) : BinaryWebSocketH
 
         val queryParams = UriUtils.getQueryParams(session.uri)
         val jwtToken = queryParams["jwt"]
-        val apiKey = queryParams["apiKey"]
+        val mode = queryParams["mode"]
+        val espId = queryParams["espId"]
 
-        if (cameraService.connect(session, jwtToken, apiKey)) {
-            println("${apiKey} connected: ${session.id}")
+        if (cameraService.connect(session, jwtToken, mode, espId)) {
+            println("${mode} connected: ${session.id} ${espId}")
         } else {
             session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Missing or invalid JWT/apiKey"))
             return
@@ -28,8 +29,9 @@ class CameraHandler(private val cameraService: CameraService) : BinaryWebSocketH
     }
 
     override fun handleBinaryMessage(session: WebSocketSession, message: BinaryMessage) {
-        if (session == cameraService.espSession) {
-            cameraService.forwardBinaryFromESP(message)
+        val espId = cameraService.espSessions.entries.find { it.value == session }?.key
+        if (espId != null) {
+            cameraService.forwardBinaryFromESP(espId, message)
         }
     }
 

@@ -10,7 +10,6 @@ import { MatButtonModule } from '@angular/material/button';
 import {TranslocoDirective} from '@ngneat/transloco';
 
 @Component({
-  selector: "app-login",
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -22,10 +21,10 @@ import {TranslocoDirective} from '@ngneat/transloco';
     MatButtonModule,
     TranslocoDirective
   ],
-  templateUrl: "./login.component.html",
-  styleUrls: ["./login.component.scss"],
+  templateUrl: "./login.page.html",
+  styleUrls: ["./login.page.scss"],
 })
-export class LoginComponent {
+export class LoginPage {
   private router = inject(Router);
   private authService = inject(AuthService);
 
@@ -45,7 +44,7 @@ export class LoginComponent {
     this.authService.login(username, password).subscribe({
       next: () => {
         this.loginError.set(false);
-        this.router.navigate(["/camera"]);
+        this.router.navigate(["/home"]);
       },
       error: () => {
         this.loginError.set(true);
