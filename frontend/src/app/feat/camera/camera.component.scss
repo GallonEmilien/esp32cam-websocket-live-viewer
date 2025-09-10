@@ -1,12 +1,75 @@
-.camera-container {
+.camera-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
   margin-top: 2rem;
+}
 
-  img {
-    max-width: 90%;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+.camera-card {
+  width: fit-content;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.camera-header {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.camera-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 25px;
+}
+
+.live-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: transparent;
+  display: inline-block;
+}
+
+.live-indicator.active {
+  background-color: red;
+  box-shadow: 0 0 8px red;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.4;
+  }
+}
+
+.canvas-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  canvas {
+    width: 640px;
+    height: 480px;
+    border-radius: 12px;
+    background-color: #000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .spinner-overlay {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
   }
 }

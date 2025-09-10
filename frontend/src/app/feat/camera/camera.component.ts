@@ -1,14 +1,25 @@
-import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  computed,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CameraService } from '../../core/services/camera.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {TranslocoDirective} from '@ngneat/transloco';
+import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
 
 @Component({
   selector: 'app-camera',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, TranslocoDirective],
+  imports: [CommonModule, MatProgressSpinnerModule, TranslocoDirective, MatCardContent, MatCardTitle, MatCardHeader, MatCard],
   templateUrl: './camera.component.html',
   styleUrls: ['./camera.component.scss']
 })
@@ -16,7 +27,16 @@ export class CameraComponent implements OnInit, AfterViewInit, OnDestroy {
   private cameraService = inject(CameraService);
   private authService = inject(AuthService);
 
-  protected latestFrame = this.cameraService.latestFrame;
+  readonly latestFrame = this.cameraService.latestFrame;
+
+  isActive = signal(false);
+
+  lastPing = computed(() => {
+    if(this.latestFrame()) {
+      return Date.now();
+    }
+    return 0;
+  });
 
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D;
@@ -37,6 +57,7 @@ export class CameraComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private drawLoop() {
     const frame = this.latestFrame();
+    this.isActive.set(Date.now() - this.lastPing() < 2000)
     if (frame && this.ctx) {
       const canvas = this.canvasRef.nativeElement;
       if (canvas.width !== frame.width) canvas.width = frame.width;
@@ -45,6 +66,7 @@ export class CameraComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.animationId = requestAnimationFrame(() => this.drawLoop());
   }
+
 
   ngOnDestroy() {
     cancelAnimationFrame(this.animationId);
