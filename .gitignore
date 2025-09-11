@@ -34,4 +34,4 @@ node_modules/
 /.idea/modules/websocket-camera-app.iml
 /backend/src/test/kotlin/fr/gallonemilien/websocketcam/WebsocketcamApplicationTests.kt
 /.idea/WebsocketEspCamera.iml
-
+.env.properties

@@ -5,10 +5,11 @@ services:
       dockerfile: backend/Dockerfile
     container_name: backend
     environment:
-      WS_CAM_ESP_SECRET: "cc44adeab077be8f060f2b0a26eba7ae54d879dffcf5b39bf20057520ca4a3a6"
-      WS_CAM_JWT_SECRET: "cc44adeab077be8f060f2b0a26eba7ae54d879dffcf5b39bf20057520ca4a3a6"
-      WS_CAM_PASSWORD: "password"
-      WS_CAM_USER: "admin"
+      WS_CAM_ESP_SECRET: ${WS_CAM_ESP_SECRET}
+      WS_CAM_JWT_SECRET: ${WS_CAM_JWT_SECRET}
+      WS_CAM_PASSWORD: ${WS_CAM_PASSWORD}
+      WS_CAM_USER: ${WS_CAM_USER}
+      ACTIVE_ENV: prod
     expose:
       - "8080"
     ports:
@@ -23,3 +24,19 @@ services:
       - "80:80"
     depends_on:
       - backend
+
+  mongo:
+    image: mongo:8.0
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: esp32cam
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
