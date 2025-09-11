@@ -3,7 +3,7 @@
 ## TODO:
 - gRPC Streaming
 - Multiple user accounts that may or may not have access to cameras
-- Docker deployment
+- Frontend update (camera selection, auth fix, multiple user, admin view, user permissions...)
 - Motion detection & user alerts
 
 ## Introduction
