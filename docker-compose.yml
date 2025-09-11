@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: backend
+    environment:
+      WS_CAM_ESP_SECRET: "cc44adeab077be8f060f2b0a26eba7ae54d879dffcf5b39bf20057520ca4a3a6"
+      WS_CAM_JWT_SECRET: "cc44adeab077be8f060f2b0a26eba7ae54d879dffcf5b39bf20057520ca4a3a6"
+      WS_CAM_PASSWORD: "password"
+      WS_CAM_USER: "admin"
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

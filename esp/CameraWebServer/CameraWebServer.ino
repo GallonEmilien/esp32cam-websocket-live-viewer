@@ -33,7 +33,7 @@ const int daylightOffset_sec = 0;
 char header[50];
 char payload[256];
 char signature[50];
-char out[256];
+char out[1024];
 CustomJWT jwt(ESP_SECRET, header, sizeof(header), payload, sizeof(payload), signature, sizeof(signature), out, sizeof(out));
 
 void setup() {
@@ -144,7 +144,7 @@ void loop() {
     return;
   }
 
-  if (isConnected && client.available()) {
+  if (isConnected) {
     camera_fb_t *fb = esp_camera_fb_get();
     if (fb && fb->format == PIXFORMAT_JPEG) {
 
@@ -158,6 +158,5 @@ void loop() {
       Serial.println("Erreur capture caméra");
     }
   }
-  delay(30);
 }
 

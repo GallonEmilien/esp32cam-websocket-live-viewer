@@ -53,7 +53,6 @@ export class CameraComponent implements AfterViewInit, OnDestroy {
       const token = this.authService.getToken();
       const cameraId = this.cameraId();
       if (token && cameraId) {
-        console.log("NOUVELLE")
         this.cameraService.connect(token, cameraId);
       }
     });

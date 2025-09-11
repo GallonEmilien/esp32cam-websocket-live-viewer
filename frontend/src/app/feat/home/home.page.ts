@@ -11,5 +11,4 @@ import {CameraComponent} from '../camera/camera.component';
   styleUrls: ['./home.page.scss']
 })
 export class HomePage {
-
 }

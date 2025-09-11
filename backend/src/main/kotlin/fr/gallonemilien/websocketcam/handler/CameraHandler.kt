@@ -31,6 +31,7 @@ class CameraHandler(private val cameraService: CameraService) : BinaryWebSocketH
     override fun handleBinaryMessage(session: WebSocketSession, message: BinaryMessage) {
         val espId = cameraService.espSessions.entries.find { it.value == session }?.key
         if (espId != null) {
+            println("MESSAGE ESP RECU.... ${message.payloadLength}")
             cameraService.forwardBinaryFromESP(espId, message)
         }
     }

@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import {TranslocoDirective} from '@ngneat/transloco';
+import {environment} from '../../../environments/environment';
 
 @Component({
   standalone: true,
@@ -53,4 +54,6 @@ export class LoginPage {
       },
     });
   }
+
+  protected readonly environment = environment;
 }
