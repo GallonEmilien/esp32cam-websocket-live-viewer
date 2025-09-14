@@ -6,6 +6,7 @@
 - Better informations on camera management (camera name, status, owner...)
 - Frontend update (camera selection, auth fix, multiple user, admin view, user permissions...)
 - Motion detection & user alerts
+- Configure ESP with with when reset button pressed. If nothing is done in the 30s seconds, then it loads on the default config
 
 ## Introduction
 
