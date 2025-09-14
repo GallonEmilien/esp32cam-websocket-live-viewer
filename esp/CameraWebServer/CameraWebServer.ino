@@ -1,7 +1,6 @@
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <ArduinoWebsockets.h>
-#include <CustomJWT.h>
 #include <Base64.h>
 #include <WiFiUdp.h>
 #include "time.h"
@@ -12,7 +11,7 @@
 
 using namespace websockets;
 
-const char* wsHost = "192.168.1.39";
+const char* wsHost = "192.168.1.19";
 const uint16_t wsPort = 8080;
 
 WebsocketsClient client;
@@ -22,19 +21,9 @@ const unsigned long RECONNECT_INTERVAL = 5000;
 unsigned long lastPingTime = 0;
 const unsigned long PING_INTERVAL = 30000;
 
-const char* apiKey = "ESP";
-const char* espId = "1";
-
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 0;
 const int daylightOffset_sec = 0;
-
-
-char header[50];
-char payload[256];
-char signature[50];
-char out[1024];
-CustomJWT jwt(ESP_SECRET, header, sizeof(header), payload, sizeof(payload), signature, sizeof(signature), out, sizeof(out));
 
 void setup() {
   Serial.begin(115200);
@@ -83,19 +72,11 @@ void setup() {
     Serial.println("Init camera error");
     ESP.restart();
   }
-}
-
-
-String generateJWT() {
-    long timestamp = time(nullptr); 
-    String payload = "{\"apiKey\":\"ESP\",\"ts\":" + String(timestamp) + "}";
-    jwt.encodeJWT((char*)payload.c_str());
-    return String(jwt.out); 
+  delay(100);
 }
 
 void setupWebSocket() {
-  String token = generateJWT();
-  String wsUrl = "ws://" + String(wsHost) + ":" + String(wsPort) + "/api/ws/camera?jwt=" + token + "&espId=" + espId + "&mode=ESP";
+  String wsUrl = "ws://" + String(wsHost) + ":" + String(wsPort) + "/api/ws/camera?jwt=" + ESP_SECRET + "&espId=" + ESP_ID + "&mode=ESP";
   
   Serial.println("Connexion WebSocket à: " + wsUrl);
 
@@ -133,10 +114,6 @@ void setupWebSocket() {
 }
 
 void loop() {
-  if (isConnected) {
-    client.poll();
-  }
-
   if (!isConnected && (millis() - lastReconnectAttempt > RECONNECT_INTERVAL)) {
     Serial.println("Tentative de reconnexion...");
     setupWebSocket();
@@ -145,18 +122,24 @@ void loop() {
   }
 
   if (isConnected) {
-    camera_fb_t *fb = esp_camera_fb_get();
-    if (fb && fb->format == PIXFORMAT_JPEG) {
+    client.poll(); 
 
-      bool success = client.sendBinary((const char*)fb->buf, fb->len);
-      if (!success) {
-        Serial.println("Erreur envoi image - connexion probablement fermée");
-        isConnected = false;
-      }
-      esp_camera_fb_return(fb);
-    } else {
+    camera_fb_t *fb = esp_camera_fb_get();
+    if (!fb) {
       Serial.println("Erreur capture caméra");
+      return;
     }
+
+    bool success = client.sendBinary((const char*)fb->buf, fb->len);
+    esp_camera_fb_return(fb); // Libère le buffer immédiatement
+
+    if (!success) {
+      Serial.println("Erreur envoi image - connexion probablement fermée");
+      isConnected = false;
+      return;
+    }
+
+    delay(50);
   }
 }
 

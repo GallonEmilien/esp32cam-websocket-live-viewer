@@ -5,7 +5,6 @@ services:
       dockerfile: backend/Dockerfile
     container_name: backend
     environment:
-      WS_CAM_ESP_SECRET: ${WS_CAM_ESP_SECRET}
       WS_CAM_JWT_SECRET: ${WS_CAM_JWT_SECRET}
       WS_CAM_PASSWORD: ${WS_CAM_PASSWORD}
       WS_CAM_USER: ${WS_CAM_USER}

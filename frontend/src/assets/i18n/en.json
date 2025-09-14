@@ -1,11 +1,36 @@
 {
+  "common": {
+    "apikey": "API Key",
+    "id": "ID"
+  },
+  "home": {
+    "title": "ESP-Cam Viewer"
+  },
+  "manager": {
+    "title": "Camera Manager",
+    "create": {
+      "title": "Add Camera",
+      "warning": "⚠\uFE0F Please copy the camera API key now, you will not be able to retrieve it later!"
+    },
+    "view": {
+      "title": "Access to live"
+    },
+    "delete": {
+      "title": "Delete"
+    },
+    "section": {
+      "add": "Add new cameras",
+      "manage": "Manage the selection"
+    }
+  },
   "login": {
     "fields": {
       "username": "Username",
       "password": "Password"
     },
     "buttons": {
-      "submit": "Login"
+      "submit": "Login",
+      "logout": "Logout"
     }
   },
   "camera": {

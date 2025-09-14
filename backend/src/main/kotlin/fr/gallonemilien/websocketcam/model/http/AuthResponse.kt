@@ -1,4 +1,4 @@
-package fr.gallonemilien.websocketcam.model
+package fr.gallonemilien.websocketcam.model.http
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.time.Instant
@@ -19,14 +19,3 @@ data class AuthError(
     val timestamp: Long = Instant.now().epochSecond
 ) : AuthResponse()
 
-data class ValidationError(
-    val field: String,
-    val message: String
-)
-
-data class AuthValidationError(
-    val error: String = "Validation failed",
-    val code: String = "VALIDATION_ERROR",
-    val details: List<ValidationError>,
-    val timestamp: Long = Instant.now().epochSecond
-) : AuthResponse()

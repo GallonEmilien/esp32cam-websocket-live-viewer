@@ -1,0 +1,7 @@
+<mat-selection-list (ngModelChange)="change($event)" [multiple]="false" [ngModel]="selectedCamera()">
+  @for (camera of cameras(); track camera.id) {
+    <mat-list-option [value]="camera">
+      {{ camera.id }}
+    </mat-list-option>
+  }
+</mat-selection-list>

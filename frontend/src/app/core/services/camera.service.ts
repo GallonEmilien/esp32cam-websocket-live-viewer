@@ -1,38 +1,51 @@
-import {inject, Injectable, signal, WritableSignal} from '@angular/core';
-import {WebSocketService} from './websocket.service';
-import {environment} from '../../../environments/environment';
+import { inject, Injectable, signal } from '@angular/core';
+import {
+  CameraHttpService,
+  CreateCameraResponse,
+} from './http/camera.http.service';
+import { Observable } from 'rxjs';
+import { Camera } from '../model/Camera';
+import { tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class CameraService {
-  private wsService = inject(WebSocketService);
+  camerasSignal = signal<Camera[]>([]);
+  private cameraHttpService = inject(CameraHttpService);
 
-  frames = new Map<string, WritableSignal<ImageBitmap | undefined>>();
-
-  connect(jwt: string, espId: string) {
-    if (!this.frames.has(espId)) {
-      this.frames.set(espId, signal<ImageBitmap | undefined>(undefined));
-    }
-
-    let urlHost: string;
-    if(environment.production)
-      urlHost = window.location.host;
-    else
-      urlHost = 'localhost:8080';
-
-    const url = `ws://${urlHost}/api/ws/camera?jwt=${jwt}&mode=CLIENT&espId=${espId}`;
-
-    console.log(url)
-
-    this.wsService.connect(url, espId, async (data) => {
-      const blob = new Blob([data], { type: 'image/jpeg' });
-      try {
-        const img = await createImageBitmap(blob);
-        this.frames.get(espId)?.set(img);
-      } catch (err) {
-        console.error(err);
-      }
-    });
+  constructor() {
+    this.loadCameras();
   }
 
-  disconnect(espId: string) { this.wsService.disconnect(espId); }
+  createCamera(): Observable<CreateCameraResponse> {
+    return this.cameraHttpService.createCamera().pipe(
+      tap(() => {
+        this.loadCameras();
+      }),
+    );
+  }
+
+  getCameras(): Observable<Camera[]> {
+    return this.cameraHttpService.getCameras();
+  }
+
+  getCameraById(id: string): Observable<Camera> {
+    return this.cameraHttpService.getCameraById(id);
+  }
+
+  deleteCamera(id: string) {
+    this.cameraHttpService
+      .deleteCamera(id)
+      .pipe(
+        tap(() => {
+          this.loadCameras();
+        }),
+      )
+      .subscribe();
+  }
+
+  private loadCameras() {
+    this.getCameras().subscribe((cameras) => {
+      this.camerasSignal.set(cameras);
+    });
+  }
 }

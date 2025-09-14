@@ -3,12 +3,12 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {CameraComponent} from '../camera/camera.component';
+import {Dashboard} from '../../shared/components/dashboard/dashboard';
 
 @Component({
-  imports: [CommonModule, MatProgressSpinnerModule, CameraComponent],
+  imports: [CommonModule, MatProgressSpinnerModule, Dashboard],
   templateUrl: './home.page.html',
+  standalone: true,
   styleUrls: ['./home.page.scss']
 })
-export class HomePage {
-}
+export class HomePage {}

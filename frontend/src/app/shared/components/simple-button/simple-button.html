@@ -1,0 +1,7 @@
+<button (click)="action.emit()" [disabled]="disabled()">
+  @if (icon(); as icon) {
+    <mat-icon>{{ icon }}</mat-icon>
+  }
+  {{ title() }}
+</button>
+

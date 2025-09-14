@@ -2,8 +2,8 @@ package fr.gallonemilien.websocketcam.service
 
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
-import org.springframework.stereotype.Service
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
 import java.util.*
 import javax.crypto.SecretKey
 
@@ -22,17 +22,6 @@ class JwtService {
 
         if (secret.length < 32) {
             throw IllegalStateException("JWT secret must be at least 32 characters long")
-        }
-
-        Keys.hmacShaKeyFor(secret.toByteArray())
-    }
-
-    private val espSecret: SecretKey by lazy {
-        val secret = System.getenv("WS_CAM_ESP_SECRET")
-            ?: throw IllegalStateException("WS_CAM_ESP_SECRET environment variable is required")
-
-        if (secret.length < 32) {
-            throw IllegalStateException("ESP secret must be at least 32 characters long")
         }
 
         Keys.hmacShaKeyFor(secret.toByteArray())
@@ -75,9 +64,6 @@ class JwtService {
         false
     } catch (e: MalformedJwtException) {
         logger.warn("Malformed JWT token: ${e.message}")
-        false
-    } catch (e: SignatureException) {
-        logger.warn("Invalid JWT signature: ${e.message}")
         false
     } catch (e: IllegalArgumentException) {
         logger.warn("JWT token compact of handler are invalid: ${e.message}")

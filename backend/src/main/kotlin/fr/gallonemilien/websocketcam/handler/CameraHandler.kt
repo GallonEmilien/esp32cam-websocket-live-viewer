@@ -1,6 +1,6 @@
 package fr.gallonemilien.websocketcam.handler
 
-import fr.gallonemilien.websocketcam.service.CameraService
+import fr.gallonemilien.websocketcam.service.CameraConnectionService
 import fr.gallonemilien.websocketcam.utils.UriUtils
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.BinaryMessage
@@ -9,7 +9,7 @@ import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.BinaryWebSocketHandler
 
 @Component
-class CameraHandler(private val cameraService: CameraService) : BinaryWebSocketHandler() {
+class CameraHandler(private val cameraService: CameraConnectionService) : BinaryWebSocketHandler() {
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         session.binaryMessageSizeLimit = 1024 * 1024
@@ -23,7 +23,7 @@ class CameraHandler(private val cameraService: CameraService) : BinaryWebSocketH
         if (cameraService.connect(session, jwtToken, mode, espId)) {
             println("${mode} connected: ${session.id} ${espId}")
         } else {
-            session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Missing or invalid JWT/apiKey"))
+            session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Missing or invalid JWT/apiKey/permissions"))
             return
         }
     }
@@ -31,7 +31,6 @@ class CameraHandler(private val cameraService: CameraService) : BinaryWebSocketH
     override fun handleBinaryMessage(session: WebSocketSession, message: BinaryMessage) {
         val espId = cameraService.espSessions.entries.find { it.value == session }?.key
         if (espId != null) {
-            println("MESSAGE ESP RECU.... ${message.payloadLength}")
             cameraService.forwardBinaryFromESP(espId, message)
         }
     }

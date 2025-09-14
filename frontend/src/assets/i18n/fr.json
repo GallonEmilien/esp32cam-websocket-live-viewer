@@ -1,14 +1,29 @@
 {
+  "common": {
+    "apikey": "Clé API",
+    "id": "ID"
+  },
+  "home": {
+    "title": "Visionneuse ESP-Cam"
+  },
+  "manager": {
+    "title": "Gestionnaire de Caméras",
+    "create": {
+      "title": "Ajouter une Caméra",
+      "warning": "⚠️ Veuillez copier maintenant la clé d'API de la caméra, vous ne pourrez plus la récupérer par la suite !"
+    }
+  },
   "login": {
     "fields": {
       "username": "Nom d'utilisateur",
       "password": "Mot de passe"
     },
     "buttons": {
-      "submit": "Connexion"
+      "submit": "Connexion",
+      "logout": "Déconnexion"
     }
   },
   "camera": {
-    "title": "Caméra en direct"
+    "title": "Caméra en Direct"
   }
 }

@@ -1,0 +1,50 @@
+<div class="add-camera-container">
+  <mat-card class="add-camera-card">
+    <!-- Header avec barre décorative -->
+    <mat-card-header class="card-header">
+      <mat-card-title *transloco="let t" class="card-title">
+        {{ t('manager.title') }}
+      </mat-card-title>
+      <div class="title-divider"></div>
+    </mat-card-header>
+
+    <mat-card-content class="add-section">
+      <h3 *transloco="let t" class="section-title">{{ t('manager.section.add') }}</h3>
+      <app-simple-button
+        (click)="add()"
+        *transloco="let t"
+        [icon]="'add'"
+        [title]="t('manager.create.title')" class="add-button"/>
+    </mat-card-content>
+
+    <div class="section-divider"></div>
+
+    <mat-card-content class="management-section">
+      <h3 *transloco="let t" class="section-title">{{ t('manager.section.manage') }}</h3>
+
+      <div class="camera-selection">
+        <app-pick-camera [(modelCamera)]="selectedCamera"/>
+      </div>
+
+      <div class="camera-actions">
+        <app-simple-button
+          (click)="delete()"
+          *transloco="let t"
+          [disabled]="!selectedCamera()"
+          [icon]="'delete'"
+          [title]="t('manager.delete.title')"
+          class="delete-button"/>
+
+        <app-spacer/>
+
+        <app-simple-button
+          (click)="navigate()"
+          *transloco="let t"
+          [disabled]="!selectedCamera()"
+          [icon]="'visibility'"
+          [title]="t('manager.view.title')"
+          class="view-button"/>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
