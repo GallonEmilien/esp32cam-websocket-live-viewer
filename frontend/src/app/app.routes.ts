@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import {LoginPage} from './feat/login/login.page';
-import {authGuard} from './core/auth/auth.guard';
+import {authGuard} from './core/guard/auth.guard';
 import {HomePage} from './feat/home/home.page';
 
 

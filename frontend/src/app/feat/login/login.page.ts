@@ -1,7 +1,7 @@
 import { Component, signal, inject } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
-import { AuthService } from "../../core/auth/auth.service";
+import { AuthService } from "../../core/services/auth.service";
 import { CommonModule } from "@angular/common";
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -54,6 +54,4 @@ export class LoginPage {
       },
     });
   }
-
-  protected readonly environment = environment;
 }

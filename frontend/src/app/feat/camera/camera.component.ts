@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CameraService } from '../../core/services/camera.service';
-import { AuthService } from '../../core/auth/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {TranslocoDirective} from '@ngneat/transloco';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';

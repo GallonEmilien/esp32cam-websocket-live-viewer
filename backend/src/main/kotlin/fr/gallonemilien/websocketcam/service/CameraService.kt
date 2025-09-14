@@ -40,7 +40,7 @@ class CameraService(private val authService: AuthService) {
     }
 
     private fun connectESP(session: WebSocketSession, token: String, espId: String): Boolean =
-        authService.verifyESPToken(token).also { if (it) espSessions[espId] = session }
+        authService.verifyESPToken(token, espId).also { if (it) espSessions[espId] = session }
 
     private fun connectClient(session: WebSocketSession, token: String, espId: String): Boolean =
         authService.verifyClientToken(token).also { if (it) clientSubscriptions[session] = espId }

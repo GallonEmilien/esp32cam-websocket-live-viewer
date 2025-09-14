@@ -1,33 +1,127 @@
 package fr.gallonemilien.websocketcam.service
 
-import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Service
-import java.util.Date
+import org.slf4j.LoggerFactory
+import java.util.*
 import javax.crypto.SecretKey
+
+data class TokenInfo(val token: String, val expiresAt: Long)
 
 @Service
 class JwtService {
 
-    private val jwtSecret: SecretKey = Keys.hmacShaKeyFor(System.getenv("WS_CAM_JWT_SECRET").toByteArray())
-    private val espSecret: SecretKey = Keys.hmacShaKeyFor(System.getenv("WS_CAM_ESP_SECRET").toByteArray())
+    private val logger = LoggerFactory.getLogger(JwtService::class.java)
 
-    fun generateToken(username: String): String =
-        Jwts.builder()
+    private val jwtExpirationTime = (System.getenv("WS_CAM_JWT_EXPIRATION")?.toLongOrNull() ?: 3600) * 1000
+
+    private val jwtSecret: SecretKey by lazy {
+        val secret = System.getenv("WS_CAM_JWT_SECRET")
+            ?: throw IllegalStateException("WS_CAM_JWT_SECRET environment variable is required")
+
+        if (secret.length < 32) {
+            throw IllegalStateException("JWT secret must be at least 32 characters long")
+        }
+
+        Keys.hmacShaKeyFor(secret.toByteArray())
+    }
+
+    private val espSecret: SecretKey by lazy {
+        val secret = System.getenv("WS_CAM_ESP_SECRET")
+            ?: throw IllegalStateException("WS_CAM_ESP_SECRET environment variable is required")
+
+        if (secret.length < 32) {
+            throw IllegalStateException("ESP secret must be at least 32 characters long")
+        }
+
+        Keys.hmacShaKeyFor(secret.toByteArray())
+    }
+
+    fun generateToken(username: String): TokenInfo {
+        val now = Date()
+        val expirationDate = Date(now.time + jwtExpirationTime)
+
+        val token = Jwts.builder()
             .setSubject(username)
-            .setIssuedAt(Date())
-            .setExpiration(Date(System.currentTimeMillis() + 3600000))
-            .signWith(jwtSecret)
+            .setIssuedAt(now)
+            .setExpiration(expirationDate)
+            .setIssuer("websocket-cam-api")
+            .claim("username", username)
+            .claim("type", "access_token")
+            .signWith(jwtSecret, SignatureAlgorithm.HS256)
             .compact()
 
-    fun verifyToken(jwtToken: String): Boolean = try {
-        val claims = Jwts.parserBuilder().setSigningKey(jwtSecret).build().parseClaimsJws(jwtToken).body
-        (claims.expiration?.time ?: 0L) > System.currentTimeMillis()
-    } catch (_: Exception) { false }
+        return TokenInfo(token, expirationDate.time)
+    }
 
-    fun verifyEspToken(espToken: String): Boolean = try {
-        val claims = Jwts.parserBuilder().setSigningKey(espSecret).build().parseClaimsJws(espToken).body
-        val timestamp = (claims["ts"] as? Number)?.toLong() ?: 0L
-        kotlin.math.abs(System.currentTimeMillis() / 1000 - timestamp) <= 30
-    } catch (_: Exception) { false }
+    fun verifyToken(jwtToken: String): Boolean = try {
+        val cleanToken = cleanToken(jwtToken)
+        val claims = Jwts.parserBuilder()
+            .setSigningKey(jwtSecret)
+            .build()
+            .parseClaimsJws(cleanToken)
+            .body
+
+        val isNotExpired = claims.expiration?.after(Date()) == true
+        val isValidType = claims["type"] == "access_token"
+
+        isNotExpired && isValidType
+    } catch (e: ExpiredJwtException) {
+        logger.debug("JWT token expired: ${e.message}")
+        false
+    } catch (e: UnsupportedJwtException) {
+        logger.warn("Unsupported JWT token: ${e.message}")
+        false
+    } catch (e: MalformedJwtException) {
+        logger.warn("Malformed JWT token: ${e.message}")
+        false
+    } catch (e: SignatureException) {
+        logger.warn("Invalid JWT signature: ${e.message}")
+        false
+    } catch (e: IllegalArgumentException) {
+        logger.warn("JWT token compact of handler are invalid: ${e.message}")
+        false
+    } catch (e: Exception) {
+        logger.error("Unexpected error during JWT verification", e)
+        false
+    }
+
+    fun extractUsername(jwtToken: String): String? = try {
+        val cleanToken = cleanToken(jwtToken)
+        Jwts.parserBuilder()
+            .setSigningKey(jwtSecret)
+            .build()
+            .parseClaimsJws(cleanToken)
+            .body
+            .subject
+    } catch (e: Exception) {
+        logger.debug("Could not extract username from token: ${e.message}")
+        null
+    }
+
+    fun getRemainingTimeInSeconds(jwtToken: String): Long? = try {
+        val cleanToken = cleanToken(jwtToken)
+        val claims = Jwts.parserBuilder()
+            .setSigningKey(jwtSecret)
+            .build()
+            .parseClaimsJws(cleanToken)
+            .body
+
+        val expiration = claims.expiration
+        if (expiration != null) {
+            maxOf(0L, (expiration.time - System.currentTimeMillis()) / 1000)
+        } else null
+    } catch (e: Exception) {
+        logger.debug("Could not get remaining time from token: ${e.message}")
+        null
+    }
+
+    private fun cleanToken(token: String): String {
+        return if (token.startsWith("Bearer ")) {
+            token.substring(7)
+        } else {
+            token
+        }
+    }
 }
