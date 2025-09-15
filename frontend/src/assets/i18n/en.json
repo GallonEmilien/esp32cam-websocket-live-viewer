@@ -1,7 +1,8 @@
 {
   "common": {
     "apikey": "API Key",
-    "id": "ID"
+    "id": "ID",
+    "name": "Camera name"
   },
   "home": {
     "title": "ESP-Cam Viewer"

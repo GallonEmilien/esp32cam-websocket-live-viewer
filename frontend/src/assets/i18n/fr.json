@@ -1,7 +1,8 @@
 {
   "common": {
     "apikey": "Clé API",
-    "id": "ID"
+    "id": "ID",
+    "name": "Nom de la caméra"
   },
   "home": {
     "title": "Visionneuse ESP-Cam"
