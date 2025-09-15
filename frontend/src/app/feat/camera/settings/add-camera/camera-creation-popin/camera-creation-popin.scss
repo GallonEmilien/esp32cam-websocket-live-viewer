@@ -1,0 +1,37 @@
+form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  gap: 16px;
+}
+
+.camera-field {
+  width: 100%;
+}
+
+button[type="submit"] {
+  margin-top: auto;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  background-color: #1976d2;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #1565c0;
+  }
+
+  mat-icon {
+    font-size: 20px;
+  }
+}
