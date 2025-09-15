@@ -1,37 +1,41 @@
+# Environment
 .env
-credentials.h
-node_modules/
-/.idea/.gitignore
-/backend/.gitignore
-/frontend/.gitignore
-/.idea/modules/backend.iml
-/.idea/modules/backend.main.iml
-/.idea/modules/backend.test.iml
-/.gradle/buildOutputCleanup/buildOutputCleanup.lock
-/.gradle/8.14/checksums/checksums.lock
-/.idea/compiler.xml
-/.gradle/8.14/executionHistory/executionHistory.bin
-/.gradle/8.14/executionHistory/executionHistory.lock
-/frontend/.vscode/extensions.json
-/.gradle/8.14/fileHashes/fileHashes.bin
-/.gradle/8.14/fileHashes/fileHashes.lock
-/.idea/gradle.xml
-/.idea/kotlinc.xml
-/.idea/libraries/KotlinJavaRuntime.xml
-/frontend/.vscode/launch.json
-/.idea/misc.xml
-/.idea/modules.xml
-/.gradle/buildOutputCleanup/outputFiles.bin
-/.idea/inspectionProfiles/Project_Default.xml
-/.gradle/8.14/fileHashes/resourceHashesCache.bin
-/frontend/src.zip
-/frontend/.vscode/tasks.json
-/.idea/vcs.xml
-/.idea/modules/backend/websocket-camera-app.backend.iml
-/.idea/modules/backend/websocket-camera-app.backend.main.iml
-/.idea/modules/backend/websocket-camera-app.backend.test.iml
-/.idea/modules/frontend/websocket-camera-app.frontend.iml
-/.idea/modules/websocket-camera-app.iml
-/backend/src/test/kotlin/fr/gallonemilien/websocketcam/WebsocketcamApplicationTests.kt
-/.idea/WebsocketEspCamera.iml
 .env.properties
+credentials.h
+
+# Gradle
+.gradle
+
+# Node modules
+node_modules/
+
+# Frontend build / cache
+/frontend/dist/
+/frontend/.angular/cache/
+/frontend/.angular/tsconfig*.json
+/frontend/src.zip
+/frontend/.vscode/
+
+# Backend build / cache
+build
+/backend/build/
+/backend/.gradle/
+/backend/out/
+/backend/classes/
+/backend/reports/
+/backend/resources/
+/backend/kotlin/
+
+# IntelliJ / IDE
+/.idea/
+/*.iml
+/.idea_modules/
+*.iws
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# Logs
+*.log
