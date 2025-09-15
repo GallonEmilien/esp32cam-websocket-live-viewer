@@ -1,34 +1,27 @@
-@if (cameraInfo(); as cameraInfo) {
-  <div class="camera-result" *transloco="let t">
-    <button mat-icon-button class="close-button" (click)="closeModal()">
-      <mat-icon>close</mat-icon>
-    </button>
-
-    <div class="warning-text">
-      {{ t('manager.create.warning') }}
-    </div>
-
-    <mat-form-field appearance="outline" class="camera-field">
-      <mat-label>{{ t('common.id') }}</mat-label>
-      <input matInput [value]="cameraInfo.cameraId" readonly #cameraIdInput>
-      <button mat-icon-button matSuffix (click)="copyToClipboard(cameraInfo.cameraId)">
-        <mat-icon>content_copy</mat-icon>
-      </button>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="camera-field">
-      <mat-label>{{ t('common.apikey') }}</mat-label>
-      <input matInput
-             [type]="showToken() ? 'text' : 'password'"
-             [value]="cameraInfo.cameraToken"
-             readonly #cameraTokenInput>
-      <button mat-icon-button matSuffix (click)="toggleTokenVisibility()">
-        <mat-icon>{{ showToken() ? 'visibility_off' : 'visibility' }}</mat-icon>
-      </button>
-      <button mat-icon-button matSuffix (click)="copyToClipboard(cameraInfo.cameraToken)">
-        <mat-icon>content_copy</mat-icon>
-      </button>
-    </mat-form-field>
+<app-dialog-wrapper (close)="closeModal()" *transloco="let t">
+  <div class="warning-text">
+    {{ t('manager.create.warning') }}
   </div>
 
-}
+  <mat-form-field appearance="outline" class="camera-field">
+    <mat-label>{{ t('common.id') }}</mat-label>
+    <input matInput [value]="cameraInfo()?.cameraId" readonly>
+    <button mat-icon-button matSuffix (click)="copyToClipboard(cameraInfo()?.cameraId)">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="camera-field">
+    <mat-label>{{ t('common.apikey') }}</mat-label>
+    <input matInput
+           [type]="showToken() ? 'text' : 'password'"
+           [value]="cameraInfo()?.cameraToken"
+           readonly>
+    <button mat-icon-button matSuffix (click)="toggleTokenVisibility()">
+      <mat-icon>{{ showToken() ? 'visibility_off' : 'visibility' }}</mat-icon>
+    </button>
+    <button mat-icon-button matSuffix (click)="copyToClipboard(cameraInfo()?.cameraToken)">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+  </mat-form-field>
+</app-dialog-wrapper>

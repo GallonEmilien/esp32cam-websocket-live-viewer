@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TranslocoDirective } from '@ngneat/transloco';
+import {CameraDialogWrapper} from '../../../../../shared/components/dialog-wrapper/dialog-wrapper';
 
 @Component({
   selector: 'app-camera-token-result',
@@ -18,6 +19,7 @@ import { TranslocoDirective } from '@ngneat/transloco';
     MatIconModule,
     MatInputModule,
     TranslocoDirective,
+    CameraDialogWrapper,
   ],
 })
 export class CameraTokenResult {
