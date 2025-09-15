@@ -6,9 +6,9 @@ import {
   MatCardTitle,
 } from '@angular/material/card';
 import { TranslocoDirective } from '@ngneat/transloco';
-import { PickCamera } from './add-camera/pick-camera/pick-camera';
+import { PickCamera } from './pick-camera/pick-camera';
 import { SimpleButton } from '../../../shared/components/simple-button/simple-button';
-import { CameraTokenDialogService } from '../../../core/services/camera-token-dialog.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { CameraService } from '../../../core/services/camera.service';
 import { Camera } from '../../../core/model/Camera';
 import { Router } from '@angular/router';
@@ -33,13 +33,11 @@ import { Spacer } from '../../../shared/components/spacer/spacer';
 export class CameraSettings {
   selectedCamera = signal<Camera | undefined>(undefined);
   private cameraService = inject(CameraService);
-  private dialogsService = inject(CameraTokenDialogService);
+  private dialogService = inject(DialogService);
   private routerService = inject(Router);
 
   add() {
-    this.cameraService.createCamera().subscribe((res) => {
-      this.dialogsService.open(res);
-    });
+    this.dialogService.openCameraCreation();
   }
 
   navigate() {

@@ -1,0 +1,17 @@
+<app-dialog-wrapper (close)="closeModal()" *transloco="let t">
+  <form>
+    <mat-form-field appearance="outline" class="camera-field">
+      <mat-label>{{ t('common.name') }}</mat-label>
+      <input matInput [(ngModel)]="cameraName">
+    </mat-form-field>
+
+    <app-simple-button
+      (click)="submit()"
+      type="submit"
+      *transloco="let t"
+      [icon]="'add'"
+      [title]="t('manager.create.title')"
+      [buttonType]="'primary'"
+    />
+  </form>
+</app-dialog-wrapper>

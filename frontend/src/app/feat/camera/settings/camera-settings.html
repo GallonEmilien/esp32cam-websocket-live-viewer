@@ -14,7 +14,9 @@
         (click)="add()"
         *transloco="let t"
         [icon]="'add'"
-        [title]="t('manager.create.title')" class="add-button"/>
+        [title]="t('manager.create.title')"
+        [buttonType]="'primary'"
+      />
     </mat-card-content>
 
     <div class="section-divider"></div>
@@ -33,7 +35,7 @@
           [disabled]="!selectedCamera()"
           [icon]="'delete'"
           [title]="t('manager.delete.title')"
-          class="delete-button"/>
+          [buttonType]="'danger'"/>
 
         <app-spacer/>
 
@@ -43,7 +45,7 @@
           [disabled]="!selectedCamera()"
           [icon]="'visibility'"
           [title]="t('manager.view.title')"
-          class="view-button"/>
+          [buttonType]="'info'"/>
       </div>
     </mat-card-content>
   </mat-card>
