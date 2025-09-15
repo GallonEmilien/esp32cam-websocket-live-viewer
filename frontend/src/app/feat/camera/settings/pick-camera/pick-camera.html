@@ -1,7 +1,25 @@
-<mat-selection-list (ngModelChange)="change($event)" [multiple]="false" [ngModel]="selectedCamera()">
+<mat-selection-list
+  (ngModelChange)="change($event)"
+  [multiple]="false"
+  [ngModel]="selectedCamera()"
+  class="camera-selection-list"
+>
   @for (camera of cameras(); track camera.id) {
-    <mat-list-option [value]="camera">
-      {{ camera.id }}
+    <mat-list-option [value]="camera" class="camera-option">
+      <div class="camera-item">
+        <div class="camera-id">
+          <mat-icon class="icon">fingerprint</mat-icon>
+          <span>{{ camera.id }}</span>
+        </div>
+        <div
+          class="camera-name"
+          matTooltip="{{ camera.name }}"
+          matTooltipPosition="above"
+        >
+          <mat-icon class="icon">videocam</mat-icon>
+          <span>{{ camera.name }}</span>
+        </div>
+      </div>
     </mat-list-option>
   }
 </mat-selection-list>

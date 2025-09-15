@@ -17,15 +17,17 @@ class CameraService(
 ) {
     private val secureRandom = SecureRandom()
 
-    fun createCamera(): CreateCameraResponse {
+    fun createCamera(cameraName: String): CreateCameraResponse {
         val currentUser = getAuthenticatedUser()
         val cameraToken = generateSecureToken()
         val savedCamera =
             saveCamera(
-                BCrypt.hashpw(
+                hashedToken = BCrypt.hashpw(
                     cameraToken,
                     BCrypt.gensalt()
-                ), currentUser
+                ),
+                user = currentUser,
+                cameraName = cameraName
             )
         addCameraToUsers(listOf(currentUser), savedCamera)
         return CreateCameraResponse(cameraToken = cameraToken, cameraId = savedCamera.id)
@@ -78,11 +80,12 @@ class CameraService(
         return getUrlEncoder().withoutPadding().encodeToString(randomBytes)
     }
 
-    private fun saveCamera(hashedToken: String, user: User): Camera {
+    private fun saveCamera(hashedToken: String, user: User, cameraName: String): Camera {
         val camera = Camera(
             hashedKey = hashedToken,
             userAdmin = user.toNonNullableId(),
-            userIds = listOf(user.toNonNullableId())
+            userIds = listOf(user.toNonNullableId()),
+            name = cameraName
         )
         return cameraRepository.save(camera)
     }

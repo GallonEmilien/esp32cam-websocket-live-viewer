@@ -15,7 +15,7 @@
 
 .add-camera-card {
   flex: 0 0 auto;
-  max-width: 600px;
+  max-width: 800px;
   min-width: 450px;
   min-height: 400px;
   display: flex;
@@ -29,11 +29,9 @@
 }
 
 .add-camera-card:hover {
-  transform: translateY(-2px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
 }
 
-/* Header avec barre décorative */
 .card-header {
   padding: 24px 32px 16px 32px;
   text-align: center;
@@ -58,7 +56,6 @@
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
 
-/* Sections */
 .add-section,
 .management-section {
   padding: 24px 32px;
@@ -87,7 +84,6 @@
   letter-spacing: 0.05em;
 }
 
-/* Divider entre sections */
 .section-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, #dee2e6, transparent);
@@ -105,7 +101,6 @@
   justify-content: center;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .add-camera-container {
     padding: 12px;

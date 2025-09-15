@@ -8,13 +8,14 @@ export interface CreateCameraResponse {
   cameraToken: string;
 }
 
+
 @Injectable({ providedIn: 'root' })
 export class CameraHttpService {
   private http = inject(HttpClient);
   private apiUrl = '/api/camera';
 
-  createCamera(): Observable<CreateCameraResponse> {
-    return this.http.post<CreateCameraResponse>(this.apiUrl, null);
+  createCamera(cameraName: string): Observable<CreateCameraResponse> {
+    return this.http.post<CreateCameraResponse>(this.apiUrl,cameraName);
   }
 
   getCameras(): Observable<Camera[]> {

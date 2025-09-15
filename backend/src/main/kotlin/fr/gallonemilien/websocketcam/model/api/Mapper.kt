@@ -7,5 +7,6 @@ fun Camera.toApi(): CameraApi {
         id = this.id,
         userIds = this.userIds,
         userAdmin = this.userAdmin,
+        name = this.name
     )
 }

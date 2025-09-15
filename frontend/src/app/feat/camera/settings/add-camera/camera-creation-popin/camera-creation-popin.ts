@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { CreateCameraResponse } from '../../../../../core/services/http/camera.http.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,9 +39,12 @@ export class CameraCreationPopin {
   }
 
   submit() {
-    this.cameraService.createCamera().subscribe((res) => {
-      this.closeModal()
-      this.dialogService.openCameraResponse(res);
-    });
+    const cameraName = this.cameraName();
+    if(cameraName !== undefined && cameraName.length > 0) {
+      this.cameraService.createCamera(cameraName).subscribe((res) => {
+        this.closeModal()
+        this.dialogService.openCameraResponse(res);
+      });
+    }
   }
 }

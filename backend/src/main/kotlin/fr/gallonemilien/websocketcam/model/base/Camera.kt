@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class Camera(
     @Id
     val id: String? = null,
+    val name: String,
     val hashedKey: String,
 
     val userIds: List<String>,

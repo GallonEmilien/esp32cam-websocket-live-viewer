@@ -24,8 +24,8 @@ class CameraResource(private val cameraService: CameraService) {
     }
 
     @PostMapping
-    fun createCamera(): ResponseEntity<CreateCameraResponse> {
-        return ResponseEntity.ok(this.cameraService.createCamera())
+    fun createCamera(@RequestBody cameraName: String): ResponseEntity<CreateCameraResponse> {
+        return ResponseEntity.ok(this.cameraService.createCamera(cameraName))
     }
 
     @DeleteMapping("/{id}")

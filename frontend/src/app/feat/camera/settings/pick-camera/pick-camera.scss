@@ -1,0 +1,38 @@
+.camera-selection-list {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .camera-option {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+
+    &:hover {
+      background-color: rgba(0, 123, 255, 0.05);
+    }
+
+    .camera-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .camera-name,
+      .camera-id {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .icon {
+          font-size: 20px;
+          color: rgba(0, 0, 0, 0.6);
+        }
+
+        span {
+          font-weight: 500;
+          font-size: 0.95rem;
+        }
+      }
+    }
+  }
+}

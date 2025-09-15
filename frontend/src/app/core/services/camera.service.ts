@@ -16,8 +16,8 @@ export class CameraService {
     this.loadCameras();
   }
 
-  createCamera(): Observable<CreateCameraResponse> {
-    return this.cameraHttpService.createCamera().pipe(
+  createCamera(name: string): Observable<CreateCameraResponse> {
+    return this.cameraHttpService.createCamera(name).pipe(
       tap(() => {
         this.loadCameras();
       }),
