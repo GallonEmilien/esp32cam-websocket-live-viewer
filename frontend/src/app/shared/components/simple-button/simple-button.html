@@ -1,4 +1,12 @@
-<button (click)="action.emit()" [disabled]="disabled()">
+<button
+  type="button"
+  class="simple-button"
+  [class.primary]="buttonType() === 'primary'"
+  [class.danger]="buttonType() === 'danger'"
+  [class.info]="buttonType() === 'info'"
+  [disabled]="disabled()"
+  (click)="action.emit()"
+>
   @if (icon(); as icon) {
     <mat-icon>{{ icon }}</mat-icon>
   }
