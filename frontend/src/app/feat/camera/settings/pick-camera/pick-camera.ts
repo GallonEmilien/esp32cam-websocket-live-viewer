@@ -1,7 +1,7 @@
 import { Component, inject, model, signal } from '@angular/core';
 import { MatListOption, MatSelectionList } from '@angular/material/list';
-import { Camera } from '../../../../../core/model/Camera';
-import { CameraService } from '../../../../../core/services/camera.service';
+import { Camera } from '../../../../core/model/Camera';
+import { CameraService } from '../../../../core/services/camera.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
