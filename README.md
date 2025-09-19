@@ -2,11 +2,10 @@
 
 ## TODO:
 
-- Multiple user accounts that may or may not have access to cameras (need to add user add perm to other person
 - Better informations on camera management (camera name, status, owner...)
-- Frontend update (camera selection, auth fix, multiple user, admin view, user permissions...)
 - Motion detection & user alerts
-- Configure ESP with with when reset button pressed. If nothing is done in the 30s seconds, then it loads on the default config
+- Mobile app to see the streams and receive the alerts
+- HTTPS deployment
 
 ## Introduction
 
