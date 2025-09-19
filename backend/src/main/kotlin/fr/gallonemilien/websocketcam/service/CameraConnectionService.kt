@@ -3,16 +3,28 @@ package fr.gallonemilien.websocketcam.service
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.BinaryMessage
 import org.springframework.web.socket.WebSocketSession
+import java.nio.ByteBuffer
 
 @Service
-class CameraConnectionService(private val authService: AuthService) {
+class CameraConnectionService(
+    private val authService: AuthService,
+    private val cameraAnalysisService: CameraAnalysisService
+) {
 
     private val clientSubscriptions = mutableMapOf<WebSocketSession, String>()
     var espSessions = mutableMapOf<String, WebSocketSession>()
 
     fun forwardBinaryFromESP(espId: String, message: BinaryMessage) {
         val data = message.payload
-        val copy = data.duplicate()
+        val bytes = ByteArray(data.remaining())
+        data.get(bytes)
+
+        // TODO : add a way to disable analysis in config
+        // TODO : Make this async to avoid blocking the main thread
+        // TODO : Make this take an espId to log & then handle websocket alerts
+        cameraAnalysisService.processFrame(bytes)
+
+        val copy = ByteBuffer.wrap(bytes)
         clientSubscriptions.filterValues { it == espId }
             .keys
             .forEach { client ->
