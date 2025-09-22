@@ -6,6 +6,7 @@
 - Motion detection & user alerts
 - Mobile app to see the streams and receive the alerts
 - HTTPS deployment
+- Python link w/ backend for image processing 
 
 ## Introduction
 
