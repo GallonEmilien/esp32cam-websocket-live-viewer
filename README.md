@@ -5,7 +5,7 @@
 - Better informations on camera management (camera name, status, owner...)
 - Mobile app to see the streams and receive the alerts
 - HTTPS deployment
-- Motion detection & user alerts : Python link w/ backend for image processing (grpc) & alerts sockets
+- Motion detection & user alerts : Python link w/ backend for image processing (grpc) & alerts MQTT
 
 ## Introduction
 
