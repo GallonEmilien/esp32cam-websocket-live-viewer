@@ -1,4 +1,4 @@
-# Websocket ESP Camera
+# ESP32 Cam live viewer & real-time image processing
 
 ## TODO:
 
