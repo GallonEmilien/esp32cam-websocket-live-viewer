@@ -10,17 +10,14 @@
 #include "credentials.h"
 
 using namespace websockets;
-
 const char* wsHost = "192.168.1.19";
 const uint16_t wsPort = 8080;
-
 WebsocketsClient client;
 bool isConnected = false;
 unsigned long lastReconnectAttempt = 0;
 const unsigned long RECONNECT_INTERVAL = 5000;
 unsigned long lastPingTime = 0;
 const unsigned long PING_INTERVAL = 30000;
-
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 0;
 const int daylightOffset_sec = 0;
@@ -29,18 +26,15 @@ void setup() {
   Serial.begin(115200);
   WiFi.begin(SSID, WIFI_PASSWORD);
   WiFi.setSleep(false);
-
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
   Serial.println("\nWiFi connected");
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  Serial.println("Time synched");
-
+  Serial.println("Time synchronized");
   setupWebSocket();
-
-  // Init caméra
+  // Init camera
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -67,79 +61,68 @@ void setup() {
   config.fb_count = 2;
   config.fb_location = CAMERA_FB_IN_PSRAM;
   config.grab_mode = CAMERA_GRAB_LATEST;
-
   if (esp_camera_init(&config) != ESP_OK) {
-    Serial.println("Init camera error");
+    Serial.println("Camera initialization error");
     ESP.restart();
   }
   delay(100);
 }
-
 void setupWebSocket() {
   String wsUrl = "ws://" + String(wsHost) + ":" + String(wsPort) + "/api/ws/camera?jwt=" + ESP_SECRET + "&espId=" + ESP_ID + "&mode=ESP";
   
-  Serial.println("Connexion WebSocket à: " + wsUrl);
-
+  Serial.println("Connecting WebSocket to: " + wsUrl);
   client.onEvent([](WebsocketsEvent event, String data) {
     switch (event) {
       case WebsocketsEvent::ConnectionOpened:
-        Serial.println("WebSocket Connecté!");
+        Serial.println("WebSocket connection opened");
         isConnected = true;
         break;
         
       case WebsocketsEvent::ConnectionClosed:
-        Serial.println("WebSocket Fermé!");
+        Serial.println("WebSocket connection closed");
         isConnected = false;
         break;
         
       case WebsocketsEvent::GotPing:
-        Serial.println("WebSocket Ping reçu");
+        Serial.println("WebSocket ping received");
         client.pong();
         break;
         
       case WebsocketsEvent::GotPong:
-        Serial.println("WebSocket Pong reçu");
+        Serial.println("WebSocket pong received");
         break;
     }
   });
-
   bool connected = client.connect(wsUrl);
   if (connected) {
-    Serial.println("Connexion WebSocket réussie!");
+    Serial.println("WebSocket connection successful");
     isConnected = true;
   } else {
-    Serial.println("Échec connexion WebSocket");
+    Serial.println("WebSocket connection failed");
     isConnected = false;
   }
 }
-
 void loop() {
   if (!isConnected && (millis() - lastReconnectAttempt > RECONNECT_INTERVAL)) {
-    Serial.println("Tentative de reconnexion...");
+    Serial.println("Attempting to reconnect...");
     setupWebSocket();
     lastReconnectAttempt = millis();
     return;
   }
-
   if (isConnected) {
     client.poll(); 
-
     camera_fb_t *fb = esp_camera_fb_get();
     if (!fb) {
-      Serial.println("Erreur capture caméra");
+      Serial.println("Camera capture error");
       return;
     }
-
     bool success = client.sendBinary((const char*)fb->buf, fb->len);
-    esp_camera_fb_return(fb); // Libère le buffer immédiatement
-
+    esp_camera_fb_return(fb);
     if (!success) {
-      Serial.println("Erreur envoi image - connexion probablement fermée");
+      Serial.println("Image send error, the connection is probably closed");
       isConnected = false;
       return;
     }
-
     delay(50);
   }
 }
-
