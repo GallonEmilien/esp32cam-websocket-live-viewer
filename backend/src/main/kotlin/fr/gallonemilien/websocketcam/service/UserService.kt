@@ -12,16 +12,15 @@ class UserService(private val userRepository: UserRepository) {
 
     private val logger = LoggerFactory.getLogger(UserService::class.java)
 
-
     init {
         val adminPwd = System.getenv("WS_CAM_PASSWORD")
         val adminUsr = System.getenv("WS_CAM_USER")
-        if (adminUsr != null && adminPwd != null) {
+        if (!adminUsr.isNullOrBlank() && !adminPwd.isNullOrBlank()) {
             try {
-                this.createUser(adminUsr, adminPwd, true)
-                logger.info("Admin user created.")
-            } catch (_: Exception) {
-                logger.info("Admin user already exists, skipping creation.")
+                this.createUser(adminUsr.trim(), adminPwd, true)
+                logger.info("Admin user created successfully.")
+            } catch (e: Exception) {
+                logger.debug("Admin user already exists or could not be created: {}", e.message)
             }
         }
     }
@@ -36,8 +35,9 @@ class UserService(private val userRepository: UserRepository) {
     }
 
     fun getCurrentUser(): User? {
-        val principal = SecurityContextHolder.getContext().authentication.principal
-        return principal as User
+        val auth = SecurityContextHolder.getContext().authentication ?: return null
+        val principal = auth.principal
+        return if (principal is User) principal else null
     }
 
     fun createUser(username: String, plainPassword: String, isAdmin: Boolean = false): User {

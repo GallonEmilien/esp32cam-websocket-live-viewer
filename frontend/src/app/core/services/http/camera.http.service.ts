@@ -8,6 +8,10 @@ export interface CreateCameraResponse {
   cameraToken: string;
 }
 
+export interface WsTicketResponse {
+  ticket: string;
+  expiresInSeconds: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class CameraHttpService {
@@ -15,7 +19,7 @@ export class CameraHttpService {
   private apiUrl = '/api/camera';
 
   createCamera(cameraName: string): Observable<CreateCameraResponse> {
-    return this.http.post<CreateCameraResponse>(this.apiUrl,cameraName);
+    return this.http.post<CreateCameraResponse>(this.apiUrl, cameraName);
   }
 
   getCameras(): Observable<Camera[]> {
@@ -28,5 +32,9 @@ export class CameraHttpService {
 
   deleteCamera(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getWsTicket(id: string): Observable<WsTicketResponse> {
+    return this.http.post<WsTicketResponse>(`${this.apiUrl}/${id}/ws-ticket`, {});
   }
 }

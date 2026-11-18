@@ -1,30 +1,23 @@
 package fr.gallonemilien.websocketcam.filter
 
 import fr.gallonemilien.websocketcam.repository.UserRepository
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.Keys
+import fr.gallonemilien.websocketcam.service.JwtService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
-import javax.crypto.SecretKey
 
 @Component
 class JwtAuthenticationFilter(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val jwtService: JwtService
 ) : OncePerRequestFilter() {
 
-    private val jwtSecret: SecretKey by lazy {
-        val secret = System.getenv("WS_CAM_JWT_SECRET")
-            ?: throw IllegalStateException("WS_CAM_JWT_SECRET environment variable is required")
-        if (secret.length < 32) {
-            throw IllegalStateException("JWT secret must be at least 32 characters long")
-        }
-        Keys.hmacShaKeyFor(secret.toByteArray())
-    }
+    private val jwtLogger = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -33,29 +26,25 @@ class JwtAuthenticationFilter(
     ) {
         val header = request.getHeader("Authorization")
 
-        if (header != null && header.startsWith("Bearer")) {
-            val token = header.substring(7)
+        if (!header.isNullOrBlank() && header.startsWith("Bearer ")) {
+            val token = header.substring(7).trim()
             try {
-                val claims = Jwts.parserBuilder()
-                    .setSigningKey(jwtSecret)
-                    .build()
-                    .parseClaimsJws(token)
-                    .body
+                val username = jwtService.extractUsername(token)
 
-                val username = claims.subject
+                if (!username.isNullOrBlank() && SecurityContextHolder.getContext().authentication == null) {
+                    val user = userRepository.findByUsername(username)
 
-                val user = userRepository.findByUsername(username)
-
-                if (user != null) {
-                    val auth = UsernamePasswordAuthenticationToken(
-                        user,
-                        null,
-                        emptyList()
-                    )
-                    SecurityContextHolder.getContext().authentication = auth
+                    if (user != null) {
+                        val auth = UsernamePasswordAuthenticationToken(
+                            user,
+                            null,
+                            emptyList()
+                        )
+                        SecurityContextHolder.getContext().authentication = auth
+                    }
                 }
             } catch (e: Exception) {
-                println("Invalid JWT: ${e.message}")
+                jwtLogger.warn("Authentication failed with JWT: ${e.message}")
                 SecurityContextHolder.clearContext()
             }
         }

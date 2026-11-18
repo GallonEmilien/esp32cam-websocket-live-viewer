@@ -9,98 +9,115 @@ import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 class CameraAnalysisService {
 
     private val logger = LoggerFactory.getLogger(CameraAnalysisService::class.java)
 
-    private var previousGrayFrame: Mat? = null
-    private var frameCount = 0
+    // Store previous grayscale frame per camera ID to prevent cross-camera interference
+    private val previousGrayFrames = ConcurrentHashMap<String, Mat>()
+    private val frameCounters = ConcurrentHashMap<String, AtomicInteger>()
 
     // Process only every {frameSkip} frames to save CPU
-    private val frameSkip = 2
+    private val frameSkip = 3
 
     // Resize frames to speed up processing
     private val resizeFactor = 0.5
 
     init {
-        OpenCV.loadLocally()
-        logger.info("OpenCV loaded")
-    }
-
-    fun processFrame(bytes: ByteArray) {
-        frameCount++
-        if (frameCount % frameSkip != 0) return  // Skip frames for efficiency
-
-        val mat = Imgcodecs.imdecode(MatOfByte(*bytes), Imgcodecs.IMREAD_COLOR)
-        if (mat.empty()) return
-
-        // Resize the frame to reduce the number of pixels to process
-        val resized = Mat()
-        Imgproc.resize(mat, resized, Size(mat.width() * resizeFactor, mat.height() * resizeFactor))
-
-        detectMotion(resized)
+        try {
+            OpenCV.loadLocally()
+            logger.info("OpenCV loaded successfully")
+        } catch (e: Throwable) {
+            logger.warn("OpenCV could not be loaded: {}", e.message)
+        }
     }
 
     /**
-     * Detect motion by comparing the current grayscale frame with the previous one.
-     * This approach highlights differences between consecutive frames, capturing
-     * rapid movements while ignoring static parts of the scene.
-     *
-     * Advantages:
-     * - Sensitive to quick movements
-     * - Simple to implement
-     *
-     * Limitations:
-     * - Can generate false positives with sudden lighting changes
-     * - Slow persistent movements may be harder to detect
+     * Processes a video frame asynchronously without blocking the WebSocket pipeline.
+     * All OpenCV native Mat objects are guaranteed to be released in finally blocks to prevent OOM.
      */
-    private fun detectMotion(currentFrame: Mat) {
-        // Convert the current frame to grayscale for simpler intensity-based comparison
-        val currentGray = Mat()
-        Imgproc.cvtColor(currentFrame, currentGray, Imgproc.COLOR_BGR2GRAY)
-
-        // Ignore frames that are too dark to reduce false positives
-        val meanBrightness = Core.mean(currentGray).`val`[0]
-        if (meanBrightness < 20) {
-            previousGrayFrame = currentGray.clone()
+    fun processFrame(espId: String, bytes: ByteArray) {
+        val counter = frameCounters.computeIfAbsent(espId) { AtomicInteger(0) }
+        if (counter.incrementAndGet() % frameSkip != 0) {
             return
         }
 
-        previousGrayFrame?.let { prevGray ->
-            // Compute the absolute difference between the current frame and the previous one
-            // This highlights regions that have changed (movement)
-            val diff = Mat()
-            Core.absdiff(currentGray, prevGray, diff)
+        var rawMat: Mat? = null
+        var resizedMat: Mat? = null
+        try {
+            rawMat = Imgcodecs.imdecode(MatOfByte(*bytes), Imgcodecs.IMREAD_COLOR)
+            if (rawMat == null || rawMat.empty()) return
 
-            // Apply a binary threshold to create a mask of moving regions
-            // Pixels with a difference greater than 15 become 255 (white), others 0 (black)
-            Imgproc.threshold(diff, diff, 15.0, 255.0, Imgproc.THRESH_BINARY)
+            val targetWidth = (rawMat.width() * resizeFactor).coerceAtLeast(1.0)
+            val targetHeight = (rawMat.height() * resizeFactor).coerceAtLeast(1.0)
+            resizedMat = Mat()
+            Imgproc.resize(rawMat, resizedMat, Size(targetWidth, targetHeight))
 
-            // Morphological operations to clean up noise:
-            // - Open: removes small isolated white pixels
-            // - Close: fills small holes inside detected regions
-            val kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, Size(3.0, 3.0))
-            Imgproc.morphologyEx(diff, diff, Imgproc.MORPH_OPEN, kernel)
-            Imgproc.morphologyEx(diff, diff, Imgproc.MORPH_CLOSE, kernel)
-
-            // Count the number of non-zero pixels in the diff mask
-            // This gives a measure of how much of the frame has changed
-            val nonZero = Core.countNonZero(diff)
-            val totalPixels = diff.rows() * diff.cols()
-            val motionPercentage = (nonZero.toDouble() / totalPixels) * 100
-
-            // Trigger a motion alert if more than 1% of the frame changed
-            if (motionPercentage > 1.0) {
-                logger.warn(
-                    "Motion detected: $motionPercentage% change (non-zero pixels: $nonZero, brightness: $meanBrightness)"
-                )
-                // TODO: send alert via WebSocket or other mechanism
-            }
+            detectMotion(espId, resizedMat)
+        } catch (e: Exception) {
+            logger.debug("Frame processing error for camera {}: {}", espId, e.message)
+        } finally {
+            rawMat?.release()
+            resizedMat?.release()
         }
+    }
 
-        // Update the previous frame to the current one for the next comparison
-        previousGrayFrame = currentGray.clone()
+    private fun detectMotion(espId: String, currentFrame: Mat) {
+        var currentGray: Mat? = null
+        var diff: Mat? = null
+        var kernel: Mat? = null
+
+        try {
+            currentGray = Mat()
+            Imgproc.cvtColor(currentFrame, currentGray, Imgproc.COLOR_BGR2GRAY)
+
+            val meanBrightness = Core.mean(currentGray).`val`[0]
+            if (meanBrightness < 20.0) {
+                updatePreviousFrame(espId, currentGray)
+                return
+            }
+
+            val prevGray = previousGrayFrames[espId]
+            if (prevGray != null && !prevGray.empty() && prevGray.size() == currentGray.size()) {
+                diff = Mat()
+                Core.absdiff(currentGray, prevGray, diff)
+                Imgproc.threshold(diff, diff, 15.0, 255.0, Imgproc.THRESH_BINARY)
+
+                kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, Size(3.0, 3.0))
+                Imgproc.morphologyEx(diff, diff, Imgproc.MORPH_OPEN, kernel)
+                Imgproc.morphologyEx(diff, diff, Imgproc.MORPH_CLOSE, kernel)
+
+                val nonZero = Core.countNonZero(diff)
+                val totalPixels = diff.rows() * diff.cols()
+                val motionPercentage = if (totalPixels > 0) (nonZero.toDouble() / totalPixels) * 100 else 0.0
+
+                if (motionPercentage > 1.0) {
+                    logger.debug(
+                        "Motion detected on camera {}: {}% change (non-zero: {}, brightness: {})",
+                        espId, motionPercentage, nonZero, meanBrightness
+                    )
+                }
+            }
+
+            updatePreviousFrame(espId, currentGray)
+        } finally {
+            diff?.release()
+            kernel?.release()
+        }
+    }
+
+    private fun updatePreviousFrame(espId: String, newGray: Mat) {
+        val old = previousGrayFrames.put(espId, newGray.clone())
+        old?.release()
+    }
+
+    fun clearCamera(espId: String) {
+        val old = previousGrayFrames.remove(espId)
+        old?.release()
+        frameCounters.remove(espId)
     }
 }

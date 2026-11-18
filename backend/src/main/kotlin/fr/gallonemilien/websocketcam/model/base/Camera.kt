@@ -7,11 +7,11 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class Camera(
     @Id
     val id: String? = null,
-    val name: String,
-    val hashedKey: String,
+    val name: String = "Camera",
+    val hashedKey: String = "",
 
-    val userIds: List<String>,
-    val userAdmin: String,
+    val userIds: List<String> = emptyList(),
+    val userAdmin: String = "",
 )
 
 fun Camera.isAdmin(userId: String): Boolean {
